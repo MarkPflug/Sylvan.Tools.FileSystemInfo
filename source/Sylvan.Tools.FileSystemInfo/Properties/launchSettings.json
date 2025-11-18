@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Sylvan.Tools.FileSystemInfo": {
+      "commandName": "Project",
+      //"commandLineArgs": "../../../../../../",
+      //"commandLineArgs": "../../../../"
+      "commandLineArgs": "c:/"
+    }
+  }
+}
