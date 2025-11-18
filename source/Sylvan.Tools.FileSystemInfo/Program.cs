@@ -288,6 +288,14 @@ class Node
             AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint,
         };
 
+    static readonly EnumerationOptions FlatFileOptions =
+    new EnumerationOptions
+    {
+        IgnoreInaccessible = true,
+        RecurseSubdirectories = false,
+        AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint | FileAttributes.Directory,
+    };
+
     public static async Task<Node> BuildTree(string path, int depth)
     {
         var node = new Node();
@@ -317,10 +325,28 @@ class Node
                 tasks.Add(t);
             }
             node.directories = await Task.WhenAll(tasks);
-            foreach (var f in Directory.EnumerateFiles(path, "*", FlatOptions))
+
+
+            var items = new FileSystemEnumerable<long>(path, ScanFiles, FlatFileOptions);
+
+            foreach (var item in items)
             {
-                node.size += new FileInfo(f).Length;
-                node.immediateFileCount++;
+                if (item >= 0)
+                {
+                    node.immediateFileCount ++;
+                    node.size += item;
+                }
+                else
+                {
+                    ; //shouldn't get here?
+                }
+            }
+
+            static long ScanFiles(ref FileSystemEntry e)
+            {
+                return e.IsDirectory
+                    ? -1
+                    : e.Length;
             }
         }
         return node;
