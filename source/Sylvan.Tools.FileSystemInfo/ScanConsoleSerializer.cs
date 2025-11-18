@@ -51,7 +51,7 @@
             w.Write(GetIndent(depth));
             w.WriteLine(s);
         }
-        const int IndentSize = 3;
+        const int IndentSize = 2;
 
         string GetIndent(int depth)
         {
