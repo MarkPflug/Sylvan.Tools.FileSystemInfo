@@ -7,6 +7,11 @@
     string[] indents;
     Node[] nodes;
 
+    const int PathWidth = 48;
+    const int SizeWidth = 12;
+    const int FilesWidth = 12;
+    const int DirsWidth = 12;
+
     public ConsoleSerializer(int depth)
     {
         this.maxDepth = depth;
@@ -16,6 +21,8 @@
 
     public void Write(TextWriter w, Node root)
     {
+
+        w.WriteLine($"{"PATH",-PathWidth} {"SIZE",SizeWidth} {"FILES",FilesWidth:#,##0} {"DIRECTORIES",DirsWidth:#,##0}");
         WriteDirectory(w, root, 0);
     }
 
@@ -101,11 +108,9 @@
                 return name;
             }
             name = TruncateName(name);
-            //if (name.Length == 0)
-            //    name = "<root>";
 
             var sizeStr = FormatFileSize(s);
-            w.WriteLine($"{GetIndent(depth) + Directory + name,-32} {sizeStr,24} {fc,24:#,##0} {dc,24:#,##0}");
+            w.WriteLine($"{GetIndent(depth) + Directory + name,-PathWidth} {sizeStr,SizeWidth} {fc,FilesWidth:#,##0} {dc,DirsWidth:#,##0}");
         }
 
         void Write(TextWriter w, Node node, int depth)
@@ -118,13 +123,10 @@
 
         Write(w, node, depth);
 
-        if (node.Directories == null)
+        var dirs = node.Directories;
+        if (dirs != null)
         {
-            // do I want to do anything here?
-        }
-        else
-        {
-            WriteDirectories(w, node.Directories, depth + 1);
+            WriteDirectories(w, dirs, depth + 1);
         }
     }
 }

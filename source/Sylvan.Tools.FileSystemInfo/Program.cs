@@ -18,17 +18,16 @@ public static class Program
         {
             //path = path[..^1];
         }
-
-        var scan = new Scan(path, depth);
+        
         Console.WriteLine("Scanning " + path);
         try
         {
             var sw = Stopwatch.StartNew();
-            var node = await scan.RunAsync();
+            var root = await Node.BuildTree(path, depth);
             sw.Stop();
             Console.WriteLine($"Scan complete in {sw.Elapsed}");
             var serializer = new ConsoleSerializer(depth);
-            serializer.Write(Console.Out, node);
+            serializer.Write(Console.Out, root);
         }
         catch (IOException)
         {
@@ -39,7 +38,3 @@ public static class Program
         return 0;
     }
 }
-
-
-
-
