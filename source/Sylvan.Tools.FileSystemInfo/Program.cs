@@ -70,7 +70,7 @@ class Node
         {
             IgnoreInaccessible = true,
             RecurseSubdirectories = true,
-            AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint,
+            AttributesToSkip = FileAttributes.ReparsePoint,
         };
 
     static readonly EnumerationOptions FlatOptions =
@@ -78,7 +78,7 @@ class Node
         {
             IgnoreInaccessible = true,
             RecurseSubdirectories = false,
-            AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint,
+            AttributesToSkip = FileAttributes.ReparsePoint,
         };
 
     static readonly EnumerationOptions FlatFileOptions =
@@ -86,7 +86,7 @@ class Node
         {
             IgnoreInaccessible = true,
             RecurseSubdirectories = false,
-            AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint | FileAttributes.Directory,
+            AttributesToSkip = FileAttributes.ReparsePoint | FileAttributes.Directory,
         };
 
     public static async Task<Node> BuildTree(string path, int depth)

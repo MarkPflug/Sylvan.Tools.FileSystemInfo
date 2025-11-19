@@ -2,7 +2,11 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net9.0</TargetFramework>
+		<!-- 
+		Yes, net6.0 is no longer supported, but I don't want to force someone to update 
+		their runtime just to run my silly tool if they're on some ancient runtime.
+		-->
+		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<RollForward>Major</RollForward>
