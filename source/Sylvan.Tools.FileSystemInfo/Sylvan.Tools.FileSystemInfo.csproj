@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 		<RollForward>Major</RollForward>
 		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>sfsi</ToolCommandName>
+		<ToolCommandName>sds</ToolCommandName>
 
 		<!--
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
