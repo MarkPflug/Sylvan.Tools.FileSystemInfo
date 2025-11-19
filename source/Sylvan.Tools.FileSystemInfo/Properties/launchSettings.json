@@ -3,9 +3,9 @@
     "Sylvan.Tools.FileSystemInfo": {
       "commandName": "Project",
       //"commandLineArgs": "../../../../../../",
-      //"commandLineArgs": "../../../../"
+      "commandLineArgs": "../../../"
       //"commandLineArgs": "c:/"
-      "commandLineArgs": "c:/users/"
+      //"commandLineArgs": "c:/users/"
 
     }
   }

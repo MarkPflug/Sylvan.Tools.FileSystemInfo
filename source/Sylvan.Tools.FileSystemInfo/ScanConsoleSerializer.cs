@@ -95,15 +95,20 @@
         {
             if (s == 0) return;
 
-            const int MaxNameLen = 32;
+            const int MaxNameLen = PathWidth - 2; // 2 for space for the directory emoji
 
             string TruncateName(string name)
             {
                 var limit = MaxNameLen - depth * IndentSize;
+                if (limit < 4)
+                {
+                    // we don't have space to show anything meaningful
+                    return "";
+                }
                 if (name.Length > limit)
                 {
-                    var h = limit / 2;
-                    return name[0..(h - 2)] + ".." + name[^h..^1];
+                    var h = (limit / 2) - 1;
+                    return name[0..h] + ".." + name[^h..^0];
                 }
                 return name;
             }
