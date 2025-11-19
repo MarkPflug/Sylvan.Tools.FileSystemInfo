@@ -18,7 +18,7 @@
 		<PackageReference Include="PublishAotCompressed" Version="1.0.5" />
 		-->
 		
-		<VersionPrefix>0.0.2</VersionPrefix>
+		<VersionPrefix>0.0.3</VersionPrefix>
 		<Title>Sylvan filesystem information tool</Title>
 		<Description>A .NET global tool that shows disk usage.</Description>
 		<PackageTags></PackageTags>
