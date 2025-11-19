@@ -7,20 +7,35 @@ public static class Program
     const int DefaultDepth = 3;
     const int MaxDepth = 6;
 
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         var depth = DefaultDepth;
         Console.OutputEncoding = Encoding.UTF8;
 
         var dir = args.Length == 0 ? "." : args[0];
         var path = Path.GetFullPath(dir);
+
+        if (path.EndsWith(Path.DirectorySeparatorChar))
+        {
+            //path = path[..^1];
+        }
+
         var scan = new Scan(path, depth);
         Console.WriteLine("Scanning " + path);
+        try
+        {
 
-        await scan.RunAsync();
+            await scan.RunAsync();
+        }
+        catch (IOException)
+        {
+            Console.Error.WriteLine("The directory doesn't exist");
+            return -1;
+        }
 
         var serializer = new ConsoleSerializer(depth);
         serializer.Write(Console.Out, scan);
+        return 0;
     }
 }
 
@@ -28,7 +43,9 @@ class Scan
 {
     public string root;
     int depth;
-    public Node rootNode;
+    Node? rootNode;
+
+    public Node? RootNode => rootNode;
 
     public Scan(string root, int depth)
     {
@@ -49,12 +66,12 @@ class Scan
 class Node
 {
     static readonly EnumerationOptions QuickOptions =
-    new EnumerationOptions
-    {
-        IgnoreInaccessible = true,
-        RecurseSubdirectories = true,
-        AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint,
-    };
+        new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true,
+            AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint,
+        };
 
     static readonly EnumerationOptions FlatOptions =
         new EnumerationOptions
@@ -65,12 +82,12 @@ class Node
         };
 
     static readonly EnumerationOptions FlatFileOptions =
-    new EnumerationOptions
-    {
-        IgnoreInaccessible = true,
-        RecurseSubdirectories = false,
-        AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint | FileAttributes.Directory,
-    };
+        new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = false,
+            AttributesToSkip = FileAttributes.None | FileAttributes.ReparsePoint | FileAttributes.Directory,
+        };
 
     public static async Task<Node> BuildTree(string path, int depth)
     {
@@ -164,6 +181,12 @@ class Node
     public string Name => name;
 
     public IEnumerable<Node> Directories => directories;
+
+    public Node()
+    {
+        this.name = string.Empty;
+        this.directories = Array.Empty<Node>();
+    }
 
     internal string name;
     Node[] directories;

@@ -4,11 +4,13 @@ class ScanXmlSerializer
 {
     public void Write(TextWriter w, Scan result)
     {
+        var r = result.RootNode;
+        if (r == null) return;
+
         var s = new XmlWriterSettings() { NewLineChars = "\n", Indent = true, IndentChars = " ", NewLineOnAttributes = true };
         using var x = XmlWriter.Create(w, s);
-        var r = result.rootNode;
         x.WriteStartElement("root");
-        x.WriteAttributeString("path", result.rootNode.name);
+        x.WriteAttributeString("path", r.Name);
         WriteDirectory(x, r);
     }
 

@@ -37,7 +37,7 @@ static class Ex
 
         public T Current => e.Current;
 
-        object IEnumerator.Current => Current;
+        object IEnumerator.Current => Current!;
 
         public void Dispose()
         {   

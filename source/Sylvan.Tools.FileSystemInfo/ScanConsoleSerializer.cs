@@ -16,8 +16,9 @@
 
     public void Write(TextWriter w, Scan result)
     {
+        if (result.RootNode == null) return;
         w.WriteLine(result.root);
-        WriteDirectory(w, result.rootNode, 0);
+        WriteDirectory(w, result.RootNode, 0);
     }
 
     const long K = 1024;
@@ -46,11 +47,6 @@
 
         nodes[depth] = node;
 
-        void WriteIndented(TextWriter w, string s, int depth)
-        {
-            w.Write(GetIndent(depth));
-            w.WriteLine(s);
-        }
         const int IndentSize = 2;
 
         string GetIndent(int depth)
@@ -107,6 +103,8 @@
                 return name;
             }
             name = TruncateName(name);
+            if (name.Length == 0)
+                name = "<root>";
 
             var sizeStr = FormatFileSize(s);
             w.WriteLine($"{GetIndent(depth) + Directory + name,-32} {sizeStr,24} {fc,24:#,##0} {dc,24:#,##0}");

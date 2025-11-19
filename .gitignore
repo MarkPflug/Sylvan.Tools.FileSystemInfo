@@ -226,3 +226,4 @@ reports/
 # foxpro
 *.dbf
 *.fpt
+*.pubxml
