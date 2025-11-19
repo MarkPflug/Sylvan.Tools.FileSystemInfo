@@ -1,4 +1,4 @@
-﻿class ConsoleSerializer 
+﻿sealed class ConsoleSerializer
 {
     const string Directory = "\uD83D\uDCC1";
     const string File = "\uD83D\uDCC4";
@@ -14,11 +14,9 @@
         this.nodes = new Node[depth];
     }
 
-    public void Write(TextWriter w, Scan result)
+    public void Write(TextWriter w, Node root)
     {
-        if (result.RootNode == null) return;
-        w.WriteLine(result.root);
-        WriteDirectory(w, result.RootNode, 0);
+        WriteDirectory(w, root, 0);
     }
 
     const long K = 1024;
@@ -103,8 +101,8 @@
                 return name;
             }
             name = TruncateName(name);
-            if (name.Length == 0)
-                name = "<root>";
+            //if (name.Length == 0)
+            //    name = "<root>";
 
             var sizeStr = FormatFileSize(s);
             w.WriteLine($"{GetIndent(depth) + Directory + name,-32} {sizeStr,24} {fc,24:#,##0} {dc,24:#,##0}");
@@ -112,7 +110,9 @@
 
         void Write(TextWriter w, Node node, int depth)
         {
-            var name = Path.GetFileName(node.name);
+            var name = depth == 0
+                ? node.Name
+                : Path.GetFileName(node.name);
             WriteRow(w, name, node.FileCount, node.DirectoryCount, node.Size, depth);
         }
 
