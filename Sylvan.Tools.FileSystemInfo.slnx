@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Build/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+  </Folder>
+  <Folder Name="/Docs/">
+    <File Path="readme.md" />
+  </Folder>
+  <Project Path="source/Sylvan.Tools.FileSystemInfo/Sylvan.Tools.FileSystemInfo.csproj" />
+</Solution>
