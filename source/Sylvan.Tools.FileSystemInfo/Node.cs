@@ -46,9 +46,9 @@ sealed class Node
                 Func<Task<Node>> tf = async () =>
                 {
                     var child = await BuildTree(d, depth - 1);
-                    node.directoryCount += 1 + child.directoryCount;
-                    node.fileCount += child.fileCount;
-                    node.size += child.size;
+                    Interlocked.Add(ref node.directoryCount, 1 + child.directoryCount);
+                    Interlocked.Add(ref node.fileCount, child.fileCount);
+                    Interlocked.Add(ref node.size, child.size);
                     return child;
                 };
                 var t = Task.Run(tf);
