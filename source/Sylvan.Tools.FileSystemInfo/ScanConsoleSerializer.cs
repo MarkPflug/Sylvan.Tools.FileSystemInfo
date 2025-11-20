@@ -10,6 +10,7 @@
 
     const int PathWidth = 48;
     const int SizeWidth = 12;
+    const int PctWidth = 12;
     const int FilesWidth = 12;
     const int DirsWidth = 12;
 
@@ -27,7 +28,7 @@
     public void Write(TextWriter w, Node root)
     {
 
-        w.WriteLine($"{"PATH",-PathWidth} {"SIZE",SizeWidth} {"FILES",FilesWidth:#,##0} {"DIRECTORIES",DirsWidth:#,##0}");
+        w.WriteLine($"{"PATH",-PathWidth} {"SIZE",SizeWidth} {"PCT",PctWidth} {"FILES",FilesWidth:#,##0} {"DIRECTORIES",DirsWidth:#,##0}");
         WriteDirectory(w, root, 0);
     }
 
@@ -175,7 +176,9 @@
 
             string sizeColorCmd = GetColor(nodes[0].Size, s);
 
-            w.WriteLine($"{GetIndent(depth) + Directory + name,-PathWidth} {sizeColorCmd}{sizeStr,SizeWidth}{ResetColor} {fc,FilesWidth:#,##0} {dc,DirsWidth:#,##0}");
+            var pct = depth == 0 ? 1f : (float)s / nodes[depth - 1].Size;
+
+            w.WriteLine($"{GetIndent(depth) + Directory + name,-PathWidth} {sizeColorCmd}{sizeStr,SizeWidth}{ResetColor} {pct,PctWidth:P} {fc,FilesWidth:#,##0} {dc,DirsWidth:#,##0}");
         }
 
         void Write(TextWriter w, Node node, int depth)
