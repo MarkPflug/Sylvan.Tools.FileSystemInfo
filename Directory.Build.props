@@ -8,7 +8,7 @@
 		<PackageIcon>Sylvan.png</PackageIcon>
 		<Copyright>© 2025 $(Owner)</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<LangVersion>12.0</LangVersion>
+		<LangVersion>14.0</LangVersion>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsNotAsErrors>CS1030;$(WarningsNotAsErrors)</WarningsNotAsErrors>
 

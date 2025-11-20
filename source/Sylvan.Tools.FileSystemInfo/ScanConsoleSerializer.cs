@@ -3,6 +3,7 @@
     const string Directory = "\uD83D\uDCC1";
     const string File = "\uD83D\uDCC4";
 
+    bool useColor;
     int maxDepth;
     string[] indents;
     Node[] nodes;
@@ -12,11 +13,15 @@
     const int FilesWidth = 12;
     const int DirsWidth = 12;
 
+    static readonly Color Red = new Color(255, 0, 0);
+    static readonly Color White = new Color(224, 224, 224);
+
     public ConsoleSerializer(int depth)
     {
         this.maxDepth = depth;
         this.indents = new string[depth];
         this.nodes = new Node[depth];
+        this.useColor = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
     }
 
     public void Write(TextWriter w, Node root)
@@ -42,6 +47,50 @@
         return fileSize.ToString("0'B'");
     }
 
+    const string ResetColor = "\e[0m";
+
+    string GetColor(Color c)
+    {
+        return
+            this.useColor
+            ? $"\e[38;2;{c.R};{c.G};{c.B}m"
+            : string.Empty;
+    }
+
+    string GetColor(long v1, long v2)
+    {
+        var f = v1 == 0 ? 1f : (float)v2 / (float)v1;
+        var c = Color.Interpolate(Red, White, f);
+        return GetColor(c);        
+    }
+
+    readonly struct Color
+    {
+        readonly byte r, g, b;
+
+        public byte R => r;
+        public byte G => g;
+        public byte B => b;
+
+        public Color(byte r, byte g, byte b)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+
+        public static Color Interpolate(Color c1, Color c2, float f)
+        {
+            var fi = 1f - f;
+
+            return
+                new Color(
+                    (byte)(c1.r * f + c2.r * fi),
+                    (byte)(c1.g * f + c2.g * fi),
+                    (byte)(c1.b * f + c2.b * fi)
+                );
+        }
+    }
 
     void WriteDirectory(TextWriter w, Node node, int depth)
     {
@@ -93,7 +142,7 @@
                         WriteRow(w, "...", fc, dc, s, depth);
 
                         return;
-                    }                        
+                    }
                     WriteDirectory(w, node, depth);
                 }
             }
@@ -123,7 +172,10 @@
             name = TruncateName(name);
 
             var sizeStr = FormatFileSize(s);
-            w.WriteLine($"{GetIndent(depth) + Directory + name,-PathWidth} {sizeStr,SizeWidth} {fc,FilesWidth:#,##0} {dc,DirsWidth:#,##0}");
+
+            string sizeColorCmd = GetColor(nodes[0].Size, s);
+
+            w.WriteLine($"{GetIndent(depth) + Directory + name,-PathWidth} {sizeColorCmd}{sizeStr,SizeWidth}{ResetColor} {fc,FilesWidth:#,##0} {dc,DirsWidth:#,##0}");
         }
 
         void Write(TextWriter w, Node node, int depth)
