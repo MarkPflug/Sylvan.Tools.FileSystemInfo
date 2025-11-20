@@ -1,4 +1,6 @@
-﻿using System.IO.Enumeration;
+﻿using System.Diagnostics;
+using System.IO.Enumeration;
+using System.Runtime.CompilerServices;
 
 sealed class Node
 {
@@ -15,9 +17,8 @@ sealed class Node
         {
             IgnoreInaccessible = true,
             RecurseSubdirectories = false,
-            AttributesToSkip = FileAttributes.ReparsePoint,
+            //AttributesToSkip = FileAttributes.ReparsePoint | FileAttributes.,
         };
-
     static readonly EnumerationOptions FlatFileOptions =
         new EnumerationOptions
         {
@@ -29,6 +30,7 @@ sealed class Node
     public static async Task<Node> BuildTree(string path, int depth)
     {
         var node = new Node();
+        node.directoryCount = 1; // self
         node.name = path;
 
         if (depth == 0)
@@ -40,21 +42,13 @@ sealed class Node
         }
         else
         {
-            List<Task<Node>> tasks = new();
-            foreach (var d in Directory.EnumerateDirectories(path, "*", FlatOptions))
+
+            static long ScanFiles(ref FileSystemEntry e)
             {
-                Func<Task<Node>> tf = async () =>
-                {
-                    var child = await BuildTree(d, depth - 1);
-                    Interlocked.Add(ref node.directoryCount, 1 + child.directoryCount);
-                    Interlocked.Add(ref node.fileCount, child.fileCount);
-                    Interlocked.Add(ref node.size, child.size);
-                    return child;
-                };
-                var t = Task.Run(tf);
-                tasks.Add(t);
+                return e.IsDirectory
+                    ? -1
+                    : e.Length;
             }
-            node.directories = await Task.WhenAll(tasks);
 
             var items = new FileSystemEnumerable<long>(path, ScanFiles, FlatFileOptions);
 
@@ -68,17 +62,40 @@ sealed class Node
                 }
             }
 
-            static long ScanFiles(ref FileSystemEntry e)
+            Task<Node> ScanDirs(ref FileSystemEntry e)
             {
-                return e.IsDirectory
-                    ? -1
-                    : e.Length;
+                if (e.IsDirectory)
+                {
+                    string dir = new string(e.Directory);
+                    string name = new string(e.FileName);
+                    var path = Path.Combine(dir, name);
+                    // this task run is needed to get the recursive calls
+                    // of the current thread.
+                    return Task.Run<Node>(async () =>
+                    {
+                        return await BuildTree(path, depth - 1).ConfigureAwait(false);
+                    });
+                }
+                else
+                {
+                    return null!;
+                }
+            }
+
+            var tasks = new FileSystemEnumerable<Task<Node>>(path, ScanDirs, FlatOptions);
+
+            node.directories = await Task.WhenAll(tasks.Where(t => t is not null).ToList()).ConfigureAwait(false);
+            foreach (var d in node.directories)
+            {
+                node.fileCount += d.fileCount;
+                node.size += d.size;
+                node.directoryCount += d.directoryCount;
             }
         }
         return node;
     }
 
-    record ScanResult
+    class ScanResult
     {
         public int directoryCount = 0;
         public int fileCount = 0;
@@ -122,10 +139,13 @@ sealed class Node
     public Node()
     {
         this.name = string.Empty;
+        //this.dir = string.Empty;
         this.directories = Array.Empty<Node>();
     }
 
     internal string name;
+    //internal string dir;
+
     Node[] directories;
 
     int directoryCount;
@@ -137,4 +157,9 @@ sealed class Node
     public int DirectoryCount => directoryCount;
     public int FileCount => fileCount;
     public int ImmediateFileCount => immediateFileCount;
+
+    public override string ToString()
+    {
+        return name;
+    }
 }

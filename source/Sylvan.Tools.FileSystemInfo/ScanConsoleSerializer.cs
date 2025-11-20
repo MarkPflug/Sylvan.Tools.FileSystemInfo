@@ -67,27 +67,35 @@
             var e = dirs.OrderByDescending(d => d.Size).GetEnumerator();
             if (e.MoveNext())
             {
-                var first = e.Current;
-                WriteDirectory(w, first, depth);
+                var node = e.Current;
+                // why always write the first?
+                WriteDirectory(w, node, depth);
 
-                var limit = first.Size / 8;
-                int min = 0;
+                var limit = node.Size / 6;
 
-                foreach (var node in e.OneShot().TakeWhile(n => min-- > 0 || n.Size >= limit))
+                while (e.MoveNext())
                 {
+                    node = e.Current;
+                    if (node.Size <= limit)
+                    {
+                        // accumulate the rest.
+                        long s = node.Size;
+                        int dc = node.DirectoryCount;
+                        int fc = node.FileCount;
+
+                        while (e.MoveNext())
+                        {
+                            node = e.Current;
+                            s += node.Size;
+                            fc += node.FileCount;
+                            dc += node.DirectoryCount;
+                        }
+                        WriteRow(w, "...", fc, dc, s, depth);
+
+                        return;
+                    }                        
                     WriteDirectory(w, node, depth);
                 }
-
-                long s = 0;
-                int dc = 0;
-                int fc = 0;
-                foreach (var x in e.OneShot())
-                {
-                    s += x.Size;
-                    fc += x.FileCount;
-                    dc += x.DirectoryCount;
-                }
-                WriteRow(w, "...", fc, dc, s, depth);
             }
         }
 
